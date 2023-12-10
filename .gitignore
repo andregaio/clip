@@ -4,6 +4,7 @@ draft/
 __pycache__/
 *egg-info/
 
+!demo.ipynb
 *.ipynb
 *.pt
 *.onnx

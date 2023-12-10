@@ -6,10 +6,10 @@ import itertools
 import torch
 from transformers import DistilBertTokenizer
 
-import config as CFG
-from data import CLIPDataset, get_transforms
-from model import CLIPModel
-from utils import AvgMeter, get_lr
+import clip.config as CFG
+from clip.data import CLIPDataset, get_transforms
+from clip.model import CLIPModel
+from clip.utils import AvgMeter, get_lr
 
 
 def make_train_valid_dfs():

@@ -1,11 +1,11 @@
 from torch import nn
 import torch.nn.functional as F
 
-import config as CFG
-from modules.image_encoder import ImageEncoder
-from modules.text_encoder import TextEncoder
-from modules.projection_head import ProjectionHead
-from loss import cross_entropy
+import clip.config as CFG
+from clip.modules.image_encoder import ImageEncoder
+from clip.modules.text_encoder import TextEncoder
+from clip.modules.projection_head import ProjectionHead
+from clip.loss import cross_entropy
 
 
 class CLIPModel(nn.Module):

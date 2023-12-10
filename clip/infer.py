@@ -6,9 +6,9 @@ from transformers import DistilBertTokenizer
 import matplotlib.pyplot as plt
 
 
-import config as CFG
-from train import build_loaders, make_train_valid_dfs
-from model import CLIPModel
+import clip.config as CFG
+from clip.train import build_loaders, make_train_valid_dfs
+from clip.model import CLIPModel
 
 
 def get_image_embeddings(valid_df, model_path):

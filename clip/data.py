@@ -2,7 +2,7 @@ import cv2
 import torch
 import albumentations as A
 
-import config as CFG
+import clip.config as CFG
 
 
 class CLIPDataset(torch.utils.data.Dataset):

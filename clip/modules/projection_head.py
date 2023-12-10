@@ -1,5 +1,5 @@
 from torch import nn
-import config as CFG
+import clip.config as CFG
 
 
 class ProjectionHead(nn.Module):

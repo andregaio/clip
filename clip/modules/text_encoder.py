@@ -1,6 +1,6 @@
 from torch import nn
 from transformers import DistilBertModel, DistilBertConfig
-import config as CFG
+import clip.config as CFG
 
 
 class TextEncoder(nn.Module):

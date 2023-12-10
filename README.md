@@ -21,7 +21,6 @@ pip install -e .
 ### Training
 ```
 python clip/train.py
-
 ```
 
 ### Eval
@@ -44,4 +43,4 @@ python clip/train.py
 </div>
 
 ### Notes
- - This implementation borrows code from https://github.com/moein-shariatnia/OpenAI-CLIP
+ - The code has been heavily borrowed from https://github.com/moein-shariatnia/OpenAI-CLIP

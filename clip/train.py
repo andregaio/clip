@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import itertools
 
 import torch
 from transformers import DistilBertTokenizer
@@ -84,9 +85,14 @@ def main():
 
 
     model = CLIPModel().to(CFG.device)
-    optimizer = torch.optim.AdamW(
-        model.parameters(), lr=CFG.lr, weight_decay=CFG.weight_decay
-    )
+    params = [
+        {"params": model.image_encoder.parameters(), "lr": CFG.image_encoder_lr},
+        {"params": model.text_encoder.parameters(), "lr": CFG.text_encoder_lr},
+        {"params": itertools.chain(
+            model.image_projection.parameters(), model.text_projection.parameters()
+        ), "lr": CFG.head_lr, "weight_decay": CFG.weight_decay}
+    ]
+    optimizer = torch.optim.AdamW(params, weight_decay=0.)
     lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", patience=CFG.patience, factor=CFG.factor
     )
@@ -105,6 +111,8 @@ def main():
             best_loss = valid_loss.avg
             torch.save(model.state_dict(), "runs/best.pt")
             print("Saved Best Model!")
+        
+        lr_scheduler.step(valid_loss.avg)
 
 
 if __name__ == "__main__":

@@ -24,8 +24,8 @@ dependencies = [
     "einops",
     "pandas",
     "numpy",
-    "transformers"
-]
+    "transformers",
+    "matplotlib"]
 
 [tool.setuptools]
 py-modules = ['clip']

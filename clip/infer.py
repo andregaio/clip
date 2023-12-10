@@ -1,4 +1,3 @@
-import gc
 import cv2
 import torch
 import torch.nn.functional as F
@@ -29,7 +28,7 @@ def get_image_embeddings(valid_df, model_path):
     return model, torch.cat(valid_image_embeddings)
 
 
-def find_matches(model, image_embeddings, query, image_filenames, n=9):
+def find_matches(model, image_embeddings, query, image_filenames, n=9, image_filepath = 'result.jpg'):
     tokenizer = DistilBertTokenizer.from_pretrained(CFG.text_tokenizer)
     encoded_query = tokenizer([query])
     batch = {
@@ -56,4 +55,29 @@ def find_matches(model, image_embeddings, query, image_filenames, n=9):
         ax.imshow(image)
         ax.axis("off")
     
-    plt.show()
+    plt.savefig(f'out/{image_filepath}.jpg')
+
+
+def main():
+    _, valid_df = make_train_valid_dfs()
+    model, image_embeddings = get_image_embeddings(valid_df, "/home/andre/repos/clip/runs/best.pt")
+
+    queries = [
+        'a group of people partying',
+        'a dog running',
+        'an airplane flying',
+        'boats at sea',
+        'a blonde woman',
+        ]
+
+    for query in queries:
+        find_matches(model, 
+                    image_embeddings,
+                    query=query,
+                    image_filenames=valid_df['image'].values,
+                    n=9,
+                    image_filepath = query)
+
+
+if __name__ == "__main__":
+    main()

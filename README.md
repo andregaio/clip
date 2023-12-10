@@ -13,7 +13,9 @@ conda activate clip
 pip install -e .
 ```
 ### Models
-
+| Name        | Image encoder |      Text encoder       |
+| :---------- |    :------:   |         :------:        |
+| clip        |   resnet50    | distilbert-base-uncased |
 
 ### Dataset
 - [Flickr30K](https://www.kaggle.com/datasets/hsankesara/flickr-image-dataset?select=flickr30k_images)
@@ -23,14 +25,10 @@ pip install -e .
 python clip/train.py
 ```
 
-### Eval
-```
-
-```
 
 ### Inference
 ```
-
+python clip/infer.py
 ```
 
 ### [Results]()

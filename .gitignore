@@ -1,0 +1,10 @@
+thirdparty/
+dataset/
+draft/
+__pycache__/
+*egg-info/
+
+*.ipynb
+*.pt
+*.onnx
+link_dataset.sh

@@ -1,0 +1,31 @@
+[project]
+name = "clip"
+description = "CLIP"
+version = "1.0.0"
+
+dependencies = [
+    "torch==2.0.1",
+    "torchvision==0.15.2",
+    "torchmetrics==0.11.4",
+    "loguru==0.6.0",
+    "onnx==1.13.1",
+    "onnxruntime==1.14.1",
+    "onnxruntime-gpu==1.14.1",
+    "onnxsim==0.4.17",
+    "opencv-contrib-python==4.6.0.66",
+    "pprintpp==0.4.0",
+    "prettytable==3.4.1",
+    "tqdm==4.64.1",
+    "wandb==0.14.0",
+    "pycocotools",
+    "timm",
+    "thop",
+    "albumentations",
+    "einops",
+    "pandas",
+    "numpy",
+    "transformers"
+]
+
+[tool.setuptools]
+py-modules = ['clip']

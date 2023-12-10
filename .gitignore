@@ -3,6 +3,8 @@ dataset/
 draft/
 __pycache__/
 *egg-info/
+out/
+runs/
 
 !demo.ipynb
 *.ipynb

@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import itertools
+import wandb
+import argparse
+import inspect
 
 import torch
 from transformers import DistilBertTokenizer
@@ -10,6 +13,15 @@ import clip.config as CFG
 from clip.data import CLIPDataset, get_transforms
 from clip.model import CLIPModel
 from clip.utils import AvgMeter, get_lr
+
+
+def configs_as_dict(cfg):
+    config = {}
+    for i in inspect.getmembers(cfg):
+        if not i[0].startswith('_'):
+            if not inspect.ismethod(i[1]) and i[0] != 'torch':
+                config[i[0]] = i[1]
+    return config
 
 
 def make_train_valid_dfs():
@@ -78,6 +90,15 @@ def valid_epoch(model, valid_loader):
 
 
 def main():
+
+    parser = argparse.ArgumentParser("Argument parser")
+    parser.add_argument("--wandb", action="store_true", default = True)
+    args = parser.parse_args()
+
+    if args.wandb:
+        config_dict = configs_as_dict(CFG)
+        wandb.init(project="clip", config = {**config_dict})
+
     train_df, valid_df = make_train_valid_dfs()
     tokenizer = DistilBertTokenizer.from_pretrained(CFG.text_tokenizer)
     train_loader = build_loaders(train_df, tokenizer, mode="train")
@@ -113,6 +134,12 @@ def main():
             print("Saved Best Model!")
         
         lr_scheduler.step(valid_loss.avg)
+
+
+        if args.wandb:
+            wandb.log({'train_loss' : train_loss.avg,
+                       'valid_loss' : valid_loss.avg,
+                       'epoch' : epoch + 1})
 
 
 if __name__ == "__main__":

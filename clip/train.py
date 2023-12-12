@@ -4,7 +4,6 @@ from tqdm import tqdm
 import itertools
 import wandb
 import argparse
-import inspect
 
 import torch
 from transformers import DistilBertTokenizer
@@ -12,16 +11,8 @@ from transformers import DistilBertTokenizer
 import clip.config as CFG
 from clip.data import CLIPDataset, get_transforms
 from clip.model import CLIPModel
-from clip.utils import AvgMeter, get_lr
-
-
-def configs_as_dict(cfg):
-    config = {}
-    for i in inspect.getmembers(cfg):
-        if not i[0].startswith('_'):
-            if not inspect.ismethod(i[1]) and i[0] != 'torch':
-                config[i[0]] = i[1]
-    return config
+from clip.utils import AvgMeter, get_lr, configs_as_dict
+from clip.loss import CrontrastiveLoss
 
 
 def make_train_valid_dfs():
@@ -55,12 +46,13 @@ def build_loaders(dataframe, tokenizer, mode):
     return dataloader
 
 
-def train_epoch(model, train_loader, optimizer, lr_scheduler, step):
+def train_epoch(model, train_loader, criterion, optimizer, lr_scheduler, step):
     loss_meter = AvgMeter()
     tqdm_object = tqdm(train_loader, total=len(train_loader))
     for batch in tqdm_object:
         batch = {k: v.to(CFG.device) for k, v in batch.items() if k != "caption"}
-        loss = model(batch)
+        image_embeddings, text_embeddings = model(batch)
+        loss = criterion(image_embeddings, text_embeddings)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -74,17 +66,15 @@ def train_epoch(model, train_loader, optimizer, lr_scheduler, step):
     return loss_meter
 
 
-def valid_epoch(model, valid_loader):
+def valid_epoch(model, criterion, valid_loader):
     loss_meter = AvgMeter()
-
     tqdm_object = tqdm(valid_loader, total=len(valid_loader))
     for batch in tqdm_object:
         batch = {k: v.to(CFG.device) for k, v in batch.items() if k != "caption"}
-        loss = model(batch)
-
+        image_embeddings, text_embeddings = model(batch)
+        loss = criterion(image_embeddings, text_embeddings)
         count = batch["image"].size(0)
         loss_meter.update(loss.item(), count)
-
         tqdm_object.set_postfix(valid_loss=loss_meter.avg)
     return loss_meter
 
@@ -92,7 +82,7 @@ def valid_epoch(model, valid_loader):
 def main():
 
     parser = argparse.ArgumentParser("Argument parser")
-    parser.add_argument("--wandb", action="store_true", default = True)
+    parser.add_argument("--wandb", action="store_true", default = False)
     args = parser.parse_args()
 
     if args.wandb:
@@ -104,8 +94,8 @@ def main():
     train_loader = build_loaders(train_df, tokenizer, mode="train")
     valid_loader = build_loaders(valid_df, tokenizer, mode="valid")
 
-
     model = CLIPModel().to(CFG.device)
+    criterion = CrontrastiveLoss(CFG.batch_size, CFG.temperature).to(CFG.device)
     params = [
         {"params": model.image_encoder.parameters(), "lr": CFG.image_encoder_lr},
         {"params": model.text_encoder.parameters(), "lr": CFG.text_encoder_lr},
@@ -123,10 +113,10 @@ def main():
     for epoch in range(CFG.epochs):
         print(f"Epoch: {epoch + 1}")
         model.train()
-        train_loss = train_epoch(model, train_loader, optimizer, lr_scheduler, step)
+        train_loss = train_epoch(model, train_loader, criterion, optimizer, lr_scheduler, step)
         model.eval()
         with torch.no_grad():
-            valid_loss = valid_epoch(model, valid_loader)
+            valid_loss = valid_epoch(model, criterion, valid_loader)
         
         if valid_loss.avg < best_loss:
             best_loss = valid_loss.avg

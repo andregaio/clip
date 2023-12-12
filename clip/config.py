@@ -3,7 +3,7 @@ import torch
 debug = False
 image_path = "/home/andre/repos/slip/dataset/Flickr30k/Images"
 captions_path = "/home/andre/repos/slip/dataset/Flickr30k/captions.csv"
-batch_size = 32
+batch_size = 4
 num_workers = 4
 head_lr = 1e-3
 image_encoder_lr = 1e-4
@@ -11,7 +11,7 @@ text_encoder_lr = 1e-5
 weight_decay = 1e-3
 patience = 1
 factor = 0.8
-epochs = 10
+epochs = 2
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model_name = 'resnet50'

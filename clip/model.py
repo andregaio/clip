@@ -1,11 +1,10 @@
+import torch
 from torch import nn
-import torch.nn.functional as F
 
 import clip.config as CFG
 from clip.modules.image_encoder import ImageEncoder
 from clip.modules.text_encoder import TextEncoder
 from clip.modules.projection_head import ProjectionHead
-from clip.loss import cross_entropy
 
 
 class CLIPModel(nn.Module):
@@ -35,12 +34,4 @@ class CLIPModel(nn.Module):
         image_embeddings = self.image_projection(image_features)
         text_embeddings = self.text_projection(text_features)
 
-        # Calculating the Loss
-        logits = (text_embeddings @ image_embeddings.T) / self.temperature
-        images_similarity = image_embeddings @ image_embeddings.T
-        texts_similarity = text_embeddings @ text_embeddings.T
-        targets = F.softmax((images_similarity + texts_similarity) / 2 * self.temperature, dim=-1)
-        texts_loss = cross_entropy(logits, targets, reduction='none')
-        images_loss = cross_entropy(logits.T, targets.T, reduction='none')
-        loss =  (images_loss + texts_loss) / 2.0 # shape: (batch_size)
-        return loss.mean()
+        return image_embeddings, text_embeddings

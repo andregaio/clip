@@ -13,7 +13,9 @@ class ImageEncoder(nn.Module):
     ):
         super().__init__()
         self.model = timm.create_model(
-            model_name, pretrained, num_classes=0, global_pool="avg"
+            model_name,
+            pretrained=pretrained,
+            num_classes=0
         )
         for p in self.model.parameters():
             p.requires_grad = trainable
